@@ -7,7 +7,7 @@ type TableItem = {
 };
 
 const useHeadingObserver = () => {
-  const observer = useRef<any>();
+  const observer = useRef<IntersectionObserver>();
 
   const [activeId, setActiveId] = useState("");
   const [headings, setHeadings] = useState([] as TableItem[]);
@@ -34,8 +34,8 @@ const useHeadingObserver = () => {
 
   // Use the InersectionObserver API to check whether a heading is in view
   useEffect(() => {
-    const handleObsever = (entries: any) => {
-      entries.forEach((entry: any) => {
+    const handleObsever = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
         if (entry?.isIntersecting) setActiveId(entry.target.id);
       });
     };
@@ -46,7 +46,13 @@ const useHeadingObserver = () => {
     });
 
     const elements = document.querySelectorAll("h2, h3, h4");
-    elements.forEach((elem) => observer.current.observe(elem));
+    elements.forEach((elem) => {
+      if (observer?.current) {
+        observer?.current.observe(elem);
+      } else {
+        return;
+      }
+    });
 
     return () => observer.current?.disconnect();
   }, []);
